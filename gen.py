@@ -1,17 +1,6 @@
 from functools import reduce
 from random import seed, random, shuffle, randint, choice
-
-def operation(operator):
-    if operator == '+':
-        return lambda a, b: a + b
-    elif operator == '-':
-        return lambda a, b: a - b
-    elif operator == '*':
-        return lambda a, b: a * b
-    elif operator == '/':
-        return lambda a, b: a / b
-    else:
-        return None
+from classes import operation
 
 def adjacent(xy1, xy2):
     x1, y1 = xy1
