@@ -1,13 +1,13 @@
 import pygame
 
 WIDTH = 1000
-HEIGHT = 600
+HEIGHT = 650
 
 
 GRID_WIDTH = 1000
 GRID_HEIGHT = 500
 GRID_SHIFT = 0
-GRID_SIZE = 4
+GRID_SIZE = -1
 LARGE_FONT = int(220/GRID_SIZE)
 SMALL_FONT = int(160/GRID_SIZE)
 
@@ -99,39 +99,110 @@ def addButton(x, y, width, height, color, text, textColor):
     font = pygame.font.SysFont(None, 30)
     text = font.render(text, True, textColor)
     screen.blit(text, (x + (width / 2) - (text.get_width() / 2), y + (height / 2) - (text.get_height() / 2)))
+    return x, y, x + width, y + height
     
+
 def main():
-    global screen
+    global screen   
+    global GRID_SIZE 
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("KenKen Puzzle")
     screen.fill((255, 255, 255))
-
-    # initalize the board
-    initArr = [[2, 2, 0, 12], [2, 2, 2, 2], [2, 2, 2, 2], [2, 2, 2, 2]]
-    small = [['0+', '', 2, 3], [0, 1, 2, 3], [0, 1, 2, 3], [0, 1, 2, 3]]
-    drawGrid(smallArr=small, largeArr=initArr)
-    addButton(20, 550, 200, 25, (130, 130, 130), "Start", (255, 255, 255))
-
-    # points = [[0, 2], [0, 3], [1, 3]]
-    # addCage(points)
-    # points = [[2, 1], [2, 2], [3, 2]]
-    # addCage(points)
-    # points = [[0, 0], [0, 1], [1, 1], [1, 2]]
-    # addCage(points)
-
-    
-    pygame.display.update()
+    font = pygame.font.SysFont(None, 30)
     while True:
-        for event in pygame.event.get():
-            # button clicked
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                pos = pygame.mouse.get_pos()
-                if pos[0] > 20 and pos[0] < 220 and pos[1] > 550 and pos[1] < 575:
-                    print("Start")
+        if GRID_SIZE == -1:
+            # add input field
+            # add text     
+            text = font.render("Enter Grid Size:", True, (0, 0, 0))
+            screen.blit(text, ((WIDTH - 140 )/2 , (HEIGHT/2) - 40))
+            input_box = pygame.Rect((WIDTH - 140)/2, (HEIGHT - 10)/2, 200, 30)
+            active = False
+            text = ''
+            done = False
+
+            while True:
+                for event in pygame.event.get():
+                    # button clicked
+                    if event.type == pygame.MOUSEBUTTONDOWN:                 
+                        pos = pygame.mouse.get_pos()
+                        if pos[0] > (WIDTH - 140)/2 and pos[1] > (HEIGHT - 10)/2 and pos[0] < ((WIDTH - 140)/2)+200 and pos[1] < ((HEIGHT - 10)/2) + 30:                   
+                            # Toggle the active variable.
+                            active = not active
+                        else:
+                            active = False
+                        # Change the current color of the input box.
+                        color = (150, 150, 150) if active else (0, 0, 0)
+                    if event.type == pygame.KEYDOWN:
+                        if active:
+                            if event.key == pygame.K_RETURN:                                
+                                GRID_SIZE = int(text)
+                                break
+                                text = ''
+                            elif event.key == pygame.K_BACKSPACE:
+                                text = text[:-1]
+                            else:
+                                # check that the input is a number                                
+                                if event.unicode.isdigit():                                    
+                                    text += event.unicode
+                    if event.type == pygame.QUIT:
+                        pygame.quit()
+                        quit()     
+                    pygame.display.update()
+
+                # Render the current text.
+                txt_surface = font.render(text, True, (0, 0, 0))
+                # Resize the box if the text is too long.
+                input_box.w = 100
+                # Blit the text
+                screen.blit(txt_surface, (input_box.x+5, input_box.y+5))
+                # Blit the input_box rect.
+                pygame.draw.rect(screen, (0, 0, 0), input_box, 2)    
+                
+                if GRID_SIZE != -1:
+                    # clear screen                                      
+                    screen.fill((255, 255, 255))
+                    pygame.display.update()
                     break
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                quit()
+                pygame.display.update()  
+
+        else:
+
+            # initalize the board
+            initArr = [[2, 2, 0, 12], [2, 2, 2, 2], [2, 2, 2, 2], [2, 2, 2, 2]]
+            small = [['0+', '', 2, 3], [0, 1, 2, 3], [0, 1, 2, 3], [0, 1, 2, 3]]
+            drawGrid(smallArr=small, largeArr=initArr)
+            b11, b12, b13, b14 = addButton((WIDTH / 2) - 250, 560 - 40, 500, 25, (130, 130, 130), "Solve Using Backtracking Only", (255, 255, 255))
+            b21, b22, b23, b24 = addButton((WIDTH / 2) - 250, 560, 500, 25, (130, 130, 130), "Solve Using Backtracking With Arc Consistency ", (255, 255, 255))
+            b31, b32, b33, b34 = addButton((WIDTH / 2) - 250, 560 + 40, 500, 25, (130, 130, 130), "Solve Using Backtracking With Arc Consistency ", (255, 255, 255))
+    
+            # points = [[0, 2], [0, 3], [1, 3]]
+            # addCage(points)
+            # points = [[2, 1], [2, 2], [3, 2]]
+            # addCage(points)
+            # points = [[0, 0], [0, 1], [1, 1], [1, 2]]
+            # addCage(points)
+        
+            pygame.display.update()
+
+            while True:
+                for event in pygame.event.get():
+                    # button clicked
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        pos = pygame.mouse.get_pos()
+                        if pos[0] > b11 and pos[1] > b12 and pos[0] < b13 and pos[1] < b14:
+                            print("Start 1")
+                            break  
+                        if pos[0] > b21 and pos[1] > b22 and pos[0] < b23 and pos[1] < b24:
+                            print("Start 2")
+                            break  
+                        if pos[0] > b31 and pos[1] > b32 and pos[0] < b33 and pos[1] < b34:
+                            print("Start 3")
+                            break                                            
+                    if event.type == pygame.QUIT:
+                        pygame.quit()
+                        quit()     
+             
+                pygame.display.update()          
 
 main()
