@@ -1,15 +1,15 @@
 import pygame
+import gen
 
-WIDTH = 1000
-HEIGHT = 650
+WIDTH = 1200
+HEIGHT = 850
 
 
-GRID_WIDTH = 1000
-GRID_HEIGHT = 500
+GRID_WIDTH = 1200
+GRID_HEIGHT = 700
 GRID_SHIFT = 0
 GRID_SIZE = -1
-LARGE_FONT = int(220/GRID_SIZE)
-SMALL_FONT = int(160/GRID_SIZE)
+
 
 #     2
 #   1   0
@@ -59,18 +59,20 @@ def addCage(points):
 
         if pointFlags[0] == True:
             # right
-            pygame.draw.line(screen, (0, 0, 0), ((points[i][1]+1)*(GRID_WIDTH/GRID_SIZE), (points[i][0])*(GRID_HEIGHT/GRID_SIZE)), ((points[i][1] + 1)*(GRID_WIDTH/GRID_SIZE), (points[i][0]+1)*(GRID_HEIGHT/GRID_SIZE)), 5)
+            pygame.draw.line(screen, (0, 0, 0), ((points[i][1]+1)*(GRID_WIDTH/GRID_SIZE), (points[i][0])*(GRID_HEIGHT/GRID_SIZE)), ((points[i][1] + 1)*(GRID_WIDTH/GRID_SIZE), (points[i][0]+1)*(GRID_HEIGHT/GRID_SIZE)), 7)
         if pointFlags[1] == True:
             # left
-            pygame.draw.line(screen, (0, 0, 0), ((points[i][1])*(GRID_WIDTH/GRID_SIZE), points[i][0]*(GRID_HEIGHT/GRID_SIZE)), (points[i][1]*(GRID_WIDTH/GRID_SIZE), (points[i][0]+1)*(GRID_HEIGHT/GRID_SIZE)), 5)
+            pygame.draw.line(screen, (0, 0, 0), ((points[i][1])*(GRID_WIDTH/GRID_SIZE), points[i][0]*(GRID_HEIGHT/GRID_SIZE)), (points[i][1]*(GRID_WIDTH/GRID_SIZE), (points[i][0]+1)*(GRID_HEIGHT/GRID_SIZE)), 7)
         if pointFlags[2] == True:
             # top
-            pygame.draw.line(screen, (0, 0, 0), (points[i][1]*(GRID_WIDTH/GRID_SIZE), (points[i][0])*(GRID_HEIGHT/GRID_SIZE)), ((points[i][1]+1)*(GRID_WIDTH/GRID_SIZE), points[i][0]*(GRID_HEIGHT/GRID_SIZE)), 5)
+            pygame.draw.line(screen, (0, 0, 0), (points[i][1]*(GRID_WIDTH/GRID_SIZE), (points[i][0])*(GRID_HEIGHT/GRID_SIZE)), ((points[i][1]+1)*(GRID_WIDTH/GRID_SIZE), points[i][0]*(GRID_HEIGHT/GRID_SIZE)), 7)
         if pointFlags[3] == True:
             # bottom
-            pygame.draw.line(screen, (0, 0, 0), (points[i][1]*(GRID_WIDTH/GRID_SIZE), (points[i][0]+1)*(GRID_HEIGHT/GRID_SIZE)), ((points[i][1]+1)*(GRID_WIDTH/GRID_SIZE), (points[i][0] + 1)*(GRID_HEIGHT/GRID_SIZE)), 5)
+            pygame.draw.line(screen, (0, 0, 0), (points[i][1]*(GRID_WIDTH/GRID_SIZE), (points[i][0]+1)*(GRID_HEIGHT/GRID_SIZE)), ((points[i][1]+1)*(GRID_WIDTH/GRID_SIZE), (points[i][0] + 1)*(GRID_HEIGHT/GRID_SIZE)), 7)
 
 def drawGrid(smallArr = None, largeArr = None):
+    LARGE_FONT = int(220/GRID_SIZE)
+    SMALL_FONT = int(160/GRID_SIZE)
     # Draw the grid with outline    
     for x in range(GRID_SIZE + 1):
         pygame.draw.line(screen, (0, 0, 0), ((x * GRID_WIDTH / GRID_SIZE) + GRID_SHIFT, GRID_SHIFT), ((x * GRID_WIDTH / GRID_SIZE) + GRID_SHIFT, GRID_HEIGHT), 2)
@@ -169,12 +171,27 @@ def main():
         else:
 
             # initalize the board
-            initArr = [[2, 2, 0, 12], [2, 2, 2, 2], [2, 2, 2, 2], [2, 2, 2, 2]]
-            small = [['0+', '', 2, 3], [0, 1, 2, 3], [0, 1, 2, 3], [0, 1, 2, 3]]
-            drawGrid(smallArr=small, largeArr=initArr)
-            b11, b12, b13, b14 = addButton((WIDTH / 2) - 250, 560 - 40, 500, 25, (130, 130, 130), "Solve Using Backtracking Only", (255, 255, 255))
-            b21, b22, b23, b24 = addButton((WIDTH / 2) - 250, 560, 500, 25, (130, 130, 130), "Solve Using Backtracking With Arc Consistency ", (255, 255, 255))
-            b31, b32, b33, b34 = addButton((WIDTH / 2) - 250, 560 + 40, 500, 25, (130, 130, 130), "Solve Using Backtracking With Arc Consistency ", (255, 255, 255))
+            size, board = gen.generate(GRID_SIZE)
+            smallArr = [[''] * GRID_SIZE for i in range(GRID_SIZE)]
+            largeArr = [[''] * GRID_SIZE for i in range(GRID_SIZE)]      
+            for x in board:
+                operation = x[1]
+                operationNo = x[2]
+                print(x)
+                cages = []
+                if operation == '.':
+                    operation = ''
+                smallArr[int(x[0][0][0])-1][int(x[0][0][1])-1] = str(abs(operationNo)) + operation
+                for y in x[0]:
+                    tmp = tuple(i - 1 for i in y)
+                    cages.append(tmp) 
+                addCage(cages)                         
+            drawGrid(smallArr=smallArr, largeArr=largeArr)
+            buttonX = HEIGHT - 90
+            b11, b12, b13, b14 = addButton((WIDTH / 2) - 250, buttonX - 40, 500, 25, (130, 130, 130), "Solve Using Backtracking Only", (255, 255, 255))
+            b21, b22, b23, b24 = addButton((WIDTH / 2) - 250, buttonX, 500, 25, (130, 130, 130), "Solve Using Backtracking With Arc Consistency ", (255, 255, 255))
+            b31, b32, b33, b34 = addButton((WIDTH / 2) - 250, buttonX + 40, 500, 25, (130, 130, 130), "Solve Using Backtracking With Arc Consistency ", (255, 255, 255))
+            b41, b42, b43, b44 = addButton(WIDTH - 200, buttonX, 150, 25, (130, 130, 130), "New Game ", (255, 255, 255))
     
             # points = [[0, 2], [0, 3], [1, 3]]
             # addCage(points)
@@ -198,11 +215,17 @@ def main():
                             break  
                         if pos[0] > b31 and pos[1] > b32 and pos[0] < b33 and pos[1] < b34:
                             print("Start 3")
-                            break                                            
+                            break     
+                        if pos[0] > b41 and pos[1] > b42 and pos[0] < b43 and pos[1] < b44:
+                            GRID_SIZE = -1
+                            break                                          
                     if event.type == pygame.QUIT:
                         pygame.quit()
                         quit()     
-             
+                if GRID_SIZE == -1:
+                    screen.fill((255, 255, 255))
+                    pygame.display.update()
+                    break
                 pygame.display.update()          
 
 main()
