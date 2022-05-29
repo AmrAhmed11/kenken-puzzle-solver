@@ -1,6 +1,7 @@
 from sys import stderr
 from itertools import product, permutations
 from functools import reduce
+import copy
 
 def operation(operator):
     if operator == '+':
@@ -191,10 +192,11 @@ class CSP():
 class Kenken(CSP):
 
     def __init__(self, size, cliques):
-        validate(size, cliques)
-        variables = [members for members, _, _ in cliques]
-        domains = gdomains(size, cliques)
-        neighbors = gneighbors(cliques)
+        cliques2 = copy.copy(cliques)
+        validate(size, cliques2)
+        variables = [members for members, _, _ in cliques2]
+        domains = gdomains(size, cliques2)
+        neighbors = gneighbors(cliques2)
         CSP.__init__(self, variables, domains, neighbors, self.constraint)
 
         self.size = size
@@ -202,7 +204,7 @@ class Kenken(CSP):
         self.padding = 0
 
         self.meta = {}
-        for members, operator, target in cliques:
+        for members, operator, target in cliques2:
             self.meta[members] = (operator, target)
             self.padding = max(self.padding, len(str(target)))        
 

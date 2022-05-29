@@ -30,15 +30,14 @@ def generate(size):
         uncaged.remove(cell)
         cliques[-1].append(cell)
 
+
         for _ in range(csize - 1):
             adjs = [other for other in uncaged if adjacent(cell, other)]
             cell = choice(adjs) if adjs else None
             if not cell:
                 break
             uncaged.remove(cell)
-
             cliques[-1].append(cell)
-            
         csize = len(cliques[-1])
         if csize == 1:
             cell = cliques[-1][0]
@@ -54,7 +53,7 @@ def generate(size):
             operator = choice("+*")
 
         target = reduce(operation(operator), [board[cell] for cell in cliques[-1]])
-
+        
         cliques[-1] = (tuple(cliques[-1]), operator, int(target))
 
     return size, cliques

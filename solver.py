@@ -10,6 +10,54 @@ def first_unassigned_variable(assignment, csp):
 def no_inference(csp, var, value, assignment, removals):
     return True
 
+def forward_checking(csp, var, value, assignment, removals):
+    csp.support_pruning()
+    for B in csp.neighbors[var]:
+        if B not in assignment:
+            for b in csp.curr_domains[B][:]:
+                if not csp.constraints(var, value, B, b):
+                    csp.prune(B, b, removals)
+            if not csp.curr_domains[B]:
+                return False
+    return True
+
+def forward_checking(csp, var, value, assignment, removals):
+    csp.support_pruning()
+    for B in csp.neighbors[var]:
+        if B not in assignment:
+            for b in csp.curr_domains[B][:]:
+                if not csp.constraints(var, value, B, b):
+                    csp.prune(B, b, removals)
+            if not csp.curr_domains[B]:
+                return False
+    return True
+
+
+def mac(csp, var, value, assignment, removals):
+    return AC3(csp, [(X, var) for X in csp.neighbors[var]], removals)
+
+def AC3(csp, queue=None, removals=None):
+    if queue is None:
+        queue = [(Xi, Xk) for Xi in csp.variables for Xk in csp.neighbors[Xi]]
+    csp.support_pruning()
+    while queue:
+        (Xi, Xj) = queue.pop()
+        if revise(csp, Xi, Xj, removals):
+            if not csp.curr_domains[Xi]:
+                return False
+            for Xk in csp.neighbors[Xi]:
+                if Xk != Xj:
+                    queue.append((Xk, Xi))
+    return True
+
+def revise(csp, Xi, Xj, removals):
+    revised = False
+    for x in csp.curr_domains[Xi][:]:
+        if all(not csp.constraints(Xi, x, Xj, y) for y in csp.curr_domains[Xj]):
+            csp.prune(Xi, x, removals)
+            revised = True
+    return revised
+
 def backtracking_search(csp,
                     select_unassigned_variable=first_unassigned_variable,
                     order_domain_values=unordered_domain_values,
@@ -45,9 +93,13 @@ def gui_input(assignment,size):
     return result
 
 if __name__ == "__main__":
-    size,cliques = gen.generate(3)
+    
+    size,cliques = gen.generate(5)
+    Kenken1 = classes.Kenken(size,cliques)
 
-    Kenken = classes.Kenken(size,cliques)
-
-    assignment = backtracking_search(Kenken)
-    gui_input(assignment,size)
+    assignment1 = backtracking_search(Kenken1)
+    print(gui_input(assignment1,size),"\n")
+    assignment2 = backtracking_search(Kenken1,inference = forward_checking)
+    print(gui_input(assignment2,size),"\n")
+    assignment3 = backtracking_search(Kenken1,inference = mac)
+    print(gui_input(assignment3,size),"\n")
