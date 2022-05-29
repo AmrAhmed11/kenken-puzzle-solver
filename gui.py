@@ -1,5 +1,7 @@
 import pygame
 import gen
+import solver
+import classes
 
 WIDTH = 1200
 HEIGHT = 850
@@ -79,13 +81,13 @@ def drawGrid(smallArr = None, largeArr = None):
         pygame.draw.line(screen, (0, 0, 0), (GRID_SHIFT, (x * GRID_HEIGHT / GRID_SIZE) + GRID_SHIFT), (GRID_WIDTH , (x * GRID_HEIGHT / GRID_SIZE) + GRID_SHIFT), 2)
     # Add the large font
     if largeArr != None:
-        for x in range(len(largeArr)):
-            for y in range(len(largeArr)):
-                if(largeArr[y][x] != -1):
-                    # add text 
-                    font = pygame.font.SysFont(None, LARGE_FONT)
-                    text = font.render(str(largeArr[y][x]), True, (0, 0, 0))
-                    screen.blit(text, ((x * GRID_WIDTH / GRID_SIZE) + GRID_SHIFT + (GRID_WIDTH / GRID_SIZE / 2) - (text.get_width() / 2), (y * GRID_HEIGHT / GRID_SIZE) + GRID_SHIFT + (GRID_HEIGHT / GRID_SIZE / 2) - (text.get_height() / 2)))
+        for x in range(GRID_SIZE):            
+            for y in range(GRID_SIZE):
+            # if(largeArr[x] != -1):
+                        # add text                 
+                font = pygame.font.SysFont(None, LARGE_FONT)
+                text = font.render(str(largeArr[(x*GRID_SIZE) + y]), True, (0, 0, 0))
+                screen.blit(text, ((y * GRID_WIDTH / GRID_SIZE) + GRID_SHIFT + (GRID_WIDTH / GRID_SIZE / 2) - (text.get_width() / 2), (x * GRID_HEIGHT / GRID_SIZE) + GRID_SHIFT + (GRID_HEIGHT / GRID_SIZE / 2) - (text.get_height() / 2)))
     # Add the small font
     if smallArr != None:
         for x in range(len(smallArr)):
@@ -106,7 +108,8 @@ def addButton(x, y, width, height, color, text, textColor):
 
 def main():
     global screen   
-    global GRID_SIZE 
+    global GRID_SIZE
+    global currentBoard 
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("KenKen Puzzle")
@@ -171,13 +174,12 @@ def main():
         else:
 
             # initalize the board
-            size, board = gen.generate(GRID_SIZE)
-            smallArr = [[''] * GRID_SIZE for i in range(GRID_SIZE)]
-            largeArr = [[''] * GRID_SIZE for i in range(GRID_SIZE)]      
-            for x in board:
+            size, currentBoard = gen.generate(GRID_SIZE)
+            Kenken = classes.Kenken(GRID_SIZE, currentBoard)
+            smallArr = [[''] * GRID_SIZE for i in range(GRID_SIZE)]            
+            for x in currentBoard:
                 operation = x[1]
-                operationNo = x[2]
-                print(x)
+                operationNo = x[2]                
                 cages = []
                 if operation == '.':
                     operation = ''
@@ -186,11 +188,11 @@ def main():
                     tmp = tuple(i - 1 for i in y)
                     cages.append(tmp) 
                 addCage(cages)                         
-            drawGrid(smallArr=smallArr, largeArr=largeArr)
+            drawGrid(smallArr=smallArr)
             buttonX = HEIGHT - 90
             b11, b12, b13, b14 = addButton((WIDTH / 2) - 250, buttonX - 40, 500, 25, (130, 130, 130), "Solve Using Backtracking Only", (255, 255, 255))
             b21, b22, b23, b24 = addButton((WIDTH / 2) - 250, buttonX, 500, 25, (130, 130, 130), "Solve Using Backtracking With Arc Consistency ", (255, 255, 255))
-            b31, b32, b33, b34 = addButton((WIDTH / 2) - 250, buttonX + 40, 500, 25, (130, 130, 130), "Solve Using Backtracking With Arc Consistency ", (255, 255, 255))
+            b31, b32, b33, b34 = addButton((WIDTH / 2) - 250, buttonX + 40, 500, 25, (130, 130, 130), "Solve Using Backtracking With Forward Checking ", (255, 255, 255))
             b41, b42, b43, b44 = addButton(WIDTH - 200, buttonX, 150, 25, (130, 130, 130), "New Game ", (255, 255, 255))
     
             # points = [[0, 2], [0, 3], [1, 3]]
@@ -207,14 +209,20 @@ def main():
                     # button clicked
                     if event.type == pygame.MOUSEBUTTONDOWN:
                         pos = pygame.mouse.get_pos()
-                        if pos[0] > b11 and pos[1] > b12 and pos[0] < b13 and pos[1] < b14:
-                            print("Start 1")
+                        if pos[0] > b11 and pos[1] > b12 and pos[0] < b13 and pos[1] < b14:                             
+                            assignment = solver.backtracking_search(Kenken)                            
+                            solution = solver.gui_input(assignment, GRID_SIZE)                              
+                            drawGrid(smallArr=smallArr, largeArr=solution)                                                            
                             break  
                         if pos[0] > b21 and pos[1] > b22 and pos[0] < b23 and pos[1] < b24:
-                            print("Start 2")
+                            assignment = solver.backtracking_search(Kenken, inference = solver.mac)                            
+                            solution = solver.gui_input(assignment, GRID_SIZE)                              
+                            drawGrid(smallArr=smallArr, largeArr=solution)                  
                             break  
                         if pos[0] > b31 and pos[1] > b32 and pos[0] < b33 and pos[1] < b34:
-                            print("Start 3")
+                            assignment = solver.backtracking_search(Kenken, inference = solver.forward_checking)                            
+                            solution = solver.gui_input(assignment, GRID_SIZE)                              
+                            drawGrid(smallArr=smallArr, largeArr=solution)                  
                             break     
                         if pos[0] > b41 and pos[1] > b42 and pos[0] < b43 and pos[1] < b44:
                             GRID_SIZE = -1
