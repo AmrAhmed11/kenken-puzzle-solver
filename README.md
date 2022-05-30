@@ -5,7 +5,7 @@
   </a>
 
 <h3 align="center">Kenken Puzzle Solver</h3>
-
+</div>
 <!-- TABLE OF CONTENTS -->
 <details>
   <summary>Table of Contents</summary>
