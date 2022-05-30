@@ -1,7 +1,5 @@
 import pygame
-import gen
-import solver
-import classes
+import Kenken
 import random
 import time
 
@@ -131,21 +129,21 @@ def perfomanceAnalysis(testNo):
         screen.blit(text, ((WIDTH/2) - 130, (HEIGHT/2) - 50))
         pygame.display.update()
 
-        size, currentBoard = gen.generate(num)
-        Kenken = classes.Kenken(num, currentBoard)  
+        currentBoard = Kenken.Board(num) 
+        solver = Kenken.Solver(currentBoard)    
         
         start = time.time()
-        assignment = solver.backtracking_search(Kenken)                                    
+        assignment = solver.backtracking()                                  
         end = time.time()
         time1 += (end - start)
 
         start = time.time()
-        assignment = solver.backtracking_search(Kenken, inference = solver.AC3)                                       
+        assignment = solver.backtracking_arc()                                      
         end = time.time()
         time2 += (end - start)
 
         start = time.time()
-        assignment = solver.backtracking_search(Kenken, inference = solver.forward_checking)        
+        assignment = solver.backtracking_forwardchecking()        
         end = time.time()
         time3 += (end - start)
 
@@ -169,6 +167,8 @@ def perfomanceAnalysis(testNo):
     screen.blit(text, ((WIDTH/2) - 295, (HEIGHT/2) - 200 + 190))
     text = font.render("Average Grid Size: " + str(int(avgGridSize/testNo)), True, (0, 0, 0))
     screen.blit(text, ((WIDTH/2) - 295, (HEIGHT/2) - 200 + 240))
+    text = font.render("Number of Test Cases: " + str(int(testNo)), True, (0, 0, 0))
+    screen.blit(text, ((WIDTH/2) - 295, (HEIGHT/2) - 200 + 270))
     pygame.display.update()
 
 
@@ -273,10 +273,10 @@ def main():
         else:
 
             # initalize the board
-            size, currentBoard = gen.generate(GRID_SIZE)
-            Kenken = classes.Kenken(GRID_SIZE, currentBoard)
+            currentBoard = Kenken.Board(GRID_SIZE) 
+            solver = Kenken.Solver(currentBoard)           
             smallArr = [[''] * GRID_SIZE for i in range(GRID_SIZE)]            
-            for x in currentBoard:
+            for x in currentBoard.cages:
                 operation = x[1]
                 operationNo = x[2]                
                 cages = []
@@ -302,18 +302,18 @@ def main():
                     if event.type == pygame.MOUSEBUTTONDOWN:
                         pos = pygame.mouse.get_pos()
                         if pos[0] > b11 and pos[1] > b12 and pos[0] < b13 and pos[1] < b14:                             
-                            assignment = solver.backtracking_search(Kenken)                            
-                            solution = solver.gui_input(assignment, GRID_SIZE)                              
+                            assignment = solver.backtracking()                            
+                            solution = Kenken.Helper.gui_input(assignment, GRID_SIZE)                              
                             drawGrid(smallArr=smallArr, largeArr=solution)                                                            
                             break  
                         if pos[0] > b21 and pos[1] > b22 and pos[0] < b23 and pos[1] < b24:
-                            assignment = solver.backtracking_search(Kenken, inference = solver.AC3)                            
-                            solution = solver.gui_input(assignment, GRID_SIZE)                              
+                            assignment = solver.backtracking_arc()                            
+                            solution = Kenken.Helper.gui_input(assignment, GRID_SIZE)                              
                             drawGrid(smallArr=smallArr, largeArr=solution)                  
                             break  
                         if pos[0] > b31 and pos[1] > b32 and pos[0] < b33 and pos[1] < b34:
-                            assignment = solver.backtracking_search(Kenken, inference = solver.forward_checking)                            
-                            solution = solver.gui_input(assignment, GRID_SIZE)                              
+                            assignment = solver.backtracking_forwardchecking()                            
+                            solution = Kenken.Helper.gui_input(assignment, GRID_SIZE)                              
                             drawGrid(smallArr=smallArr, largeArr=solution)                  
                             break     
                         if pos[0] > b41 and pos[1] > b42 and pos[0] < b43 and pos[1] < b44:
