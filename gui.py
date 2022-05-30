@@ -2,6 +2,8 @@ import pygame
 import gen
 import solver
 import classes
+import random
+import time
 
 WIDTH = 1200
 HEIGHT = 850
@@ -104,7 +106,71 @@ def addButton(x, y, width, height, color, text, textColor):
     text = font.render(text, True, textColor)
     screen.blit(text, (x + (width / 2) - (text.get_width() / 2), y + (height / 2) - (text.get_height() / 2)))
     return x, y, x + width, y + height
+
+
+def perfomanceAnalysis(testNo):
+    time1 = 0
+    time2 = 0
+    time3 = 0
+    avgGridSize = 0
+
+
+    # clear screen
+    screen.fill((255, 255, 255))
+    pygame.display.update() 
     
+    font = pygame.font.SysFont(None, 25)
+
+    for i in range(testNo):
+        # generate random number
+        num = random.randint(2, 6)
+        avgGridSize += num        
+
+        # write text to screen
+        text = font.render("Running test " + str(i+1) + " on size: " + str(num), True, (0, 0, 0))
+        screen.blit(text, ((WIDTH/2) - 130, (HEIGHT/2) - 50))
+        pygame.display.update()
+
+        size, currentBoard = gen.generate(num)
+        Kenken = classes.Kenken(num, currentBoard)  
+        
+        start = time.time()
+        assignment = solver.backtracking_search(Kenken)                                    
+        end = time.time()
+        time1 += (end - start)
+
+        start = time.time()
+        assignment = solver.backtracking_search(Kenken, inference = solver.mac)                                       
+        end = time.time()
+        time2 += (end - start)
+
+        start = time.time()
+        assignment = solver.backtracking_search(Kenken, inference = solver.forward_checking)        
+        end = time.time()
+        time3 += (end - start)
+
+        screen.fill((255, 255, 255))
+        pygame.display.update()
+
+    # write text to screen
+    screen.fill((255, 255, 255))
+    pygame.display.update()    
+    text = font.render("Total Backtracking Search: " + '{:04.4f}'.format(time1) + " Seconds", True, (0, 0, 0))
+    screen.blit(text, ((WIDTH/2) - 295, (HEIGHT/2) - 200 + 10))
+    text = font.render("Total Backtracking Search with MAC: " + '{:04.4f}'.format(time2) + " Seconds", True, (0, 0, 0))
+    screen.blit(text, ((WIDTH/2) - 295, (HEIGHT/2) - 200 + 40))
+    text = font.render("Total Backtracking Search with Forward Checking: " + '{:04.4f}'.format(time3) + " Seconds", True, (0, 0, 0))
+    screen.blit(text, ((WIDTH/2) - 295, (HEIGHT/2) - 200 + 70))
+    text = font.render("Average Backtracking Search Per Test: " + '{:04.4f}'.format(time1/testNo) + " Seconds", True, (0, 0, 0))
+    screen.blit(text, ((WIDTH/2) - 295, (HEIGHT/2) - 200 + 130))
+    text = font.render("Average Backtracking Search with MAC Per Test: " + '{:04.4f}'.format(time2/testNo) + " Seconds", True, (0, 0, 0))
+    screen.blit(text, ((WIDTH/2) - 295, (HEIGHT/2) - 200 + 160))
+    text = font.render("Average Backtracking Search with Forward Checking Per Test: " + '{:04.4f}'.format(time3/testNo) + " Seconds", True, (0, 0, 0))
+    screen.blit(text, ((WIDTH/2) - 295, (HEIGHT/2) - 200 + 190))
+    text = font.render("Average Grid Size: " + str(int(avgGridSize/testNo)), True, (0, 0, 0))
+    screen.blit(text, ((WIDTH/2) - 295, (HEIGHT/2) - 200 + 240))
+    pygame.display.update()
+
 
 def main():
     global screen   
@@ -114,14 +180,14 @@ def main():
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("KenKen Puzzle")
     screen.fill((255, 255, 255))
-    font = pygame.font.SysFont(None, 30)
+    font = pygame.font.SysFont(None, 30)   
+             
     while True:
         if GRID_SIZE == -1:
-            # add input field
-            # add text     
-            text = font.render("Enter Grid Size:", True, (0, 0, 0))
-            screen.blit(text, ((WIDTH - 140 )/2 , (HEIGHT/2) - 40))
-            input_box = pygame.Rect((WIDTH - 140)/2, (HEIGHT - 10)/2, 200, 30)
+
+            performance = False            
+        
+            input_box = pygame.Rect((WIDTH - 140)/2, (HEIGHT - 10)/2, 250, 30)
             active = False
             text = ''
             done = False
@@ -129,11 +195,24 @@ def main():
             while True:
                 for event in pygame.event.get():
                     # button clicked
-                    if event.type == pygame.MOUSEBUTTONDOWN:                 
+                    if event.type == pygame.MOUSEBUTTONDOWN:
                         pos = pygame.mouse.get_pos()
+                        if performance:
+                            if pos[0] > (WIDTH/2) - 270 and pos[1] > (HEIGHT/2) + 100 and pos[0] < (WIDTH/2) - 270 + 250 and pos[1] < (HEIGHT/2) + 100 + 25:
+                                screen.fill((255, 255, 255))
+                                pygame.display.update()
+                                perfomanceAnalysis(100)
+                                performance = True 
+                            elif pos[0] > (WIDTH/2) + 30 and pos[1] > (HEIGHT/2) + 100 and pos[0] < (WIDTH/2) + 30 + 250 and pos[1] < (HEIGHT/2) + 100 + 25:
+                                performance = False
+                                screen.fill((255, 255, 255))
+                                pygame.display.update()
                         if pos[0] > (WIDTH - 140)/2 and pos[1] > (HEIGHT - 10)/2 and pos[0] < ((WIDTH - 140)/2)+200 and pos[1] < ((HEIGHT - 10)/2) + 30:                   
                             # Toggle the active variable.
                             active = not active
+                        elif pos[0] > ((WIDTH)/2) - 170 and pos[1] > (HEIGHT - 250)/2 and pos[0] < (((WIDTH)/2) - 175) + 300 and pos[1] < ((HEIGHT - 250)/2) + 30:
+                            perfomanceAnalysis(100)
+                            performance = True                            
                         else:
                             active = False
                         # Change the current color of the input box.
@@ -145,7 +224,7 @@ def main():
                                 break
                                 text = ''
                             elif event.key == pygame.K_BACKSPACE:
-                                text = text[:-1]
+                                text = ''                         
                             else:
                                 # check that the input is a number                                
                                 if event.unicode.isdigit():                                    
@@ -153,23 +232,30 @@ def main():
                     if event.type == pygame.QUIT:
                         pygame.quit()
                         quit()     
-                    pygame.display.update()
+                    pygame.display.update()                             
 
-                # Render the current text.
-                txt_surface = font.render(text, True, (0, 0, 0))
-                # Resize the box if the text is too long.
-                input_box.w = 100
-                # Blit the text
-                screen.blit(txt_surface, (input_box.x+5, input_box.y+5))
-                # Blit the input_box rect.
-                pygame.draw.rect(screen, (0, 0, 0), input_box, 2)    
-                
-                if GRID_SIZE != -1:
-                    # clear screen                                      
-                    screen.fill((255, 255, 255))
-                    pygame.display.update()
-                    break
-                pygame.display.update()  
+                if(not performance):                                        
+                    addButton(((WIDTH)/2) - 170 , (HEIGHT - 250)/2, 300, 25, (130,130,130), "Run Performance Analysis", (255,255,255))
+                    label = font.render("Enter Grid Size:", True, (0, 0, 0))
+                    screen.blit(label, ((WIDTH - 200 )/2 , (HEIGHT/2) - 40))
+                    # Render the current text.                    
+                    txt_surface = font.render(text, True, (0, 0, 0))
+                    # Resize the box if the text is too long.
+                    input_box.w = 100
+                    # Blit the text
+                    screen.blit(txt_surface, (input_box.x+5, input_box.y+5))
+                    # Blit the input_box rect.
+                    pygame.draw.rect(screen, (0, 0, 0), input_box, 2)    
+                                        
+                    if GRID_SIZE != -1:
+                        # clear screen                                      
+                        screen.fill((255, 255, 255))
+                        pygame.display.update()
+                        break
+                else:
+                    addButton((WIDTH/2) - 270, (HEIGHT/2) + 100, 250, 25, (130,130,130), "Re-run Tests", (255,255,255))
+                    addButton((WIDTH/2) + 30, (HEIGHT/2) + 100, 250, 25, (130,130,130), "Run Game", (255,255,255))
+                pygame.display.update()
 
         else:
 
@@ -194,13 +280,6 @@ def main():
             b21, b22, b23, b24 = addButton((WIDTH / 2) - 250, buttonX, 500, 25, (130, 130, 130), "Solve Using Backtracking With Arc Consistency ", (255, 255, 255))
             b31, b32, b33, b34 = addButton((WIDTH / 2) - 250, buttonX + 40, 500, 25, (130, 130, 130), "Solve Using Backtracking With Forward Checking ", (255, 255, 255))
             b41, b42, b43, b44 = addButton(WIDTH - 200, buttonX, 150, 25, (130, 130, 130), "New Game ", (255, 255, 255))
-    
-            # points = [[0, 2], [0, 3], [1, 3]]
-            # addCage(points)
-            # points = [[2, 1], [2, 2], [3, 2]]
-            # addCage(points)
-            # points = [[0, 0], [0, 1], [1, 1], [1, 2]]
-            # addCage(points)
         
             pygame.display.update()
 
@@ -234,6 +313,5 @@ def main():
                     screen.fill((255, 255, 255))
                     pygame.display.update()
                     break
-                pygame.display.update()          
-
+                pygame.display.update()
 main()
