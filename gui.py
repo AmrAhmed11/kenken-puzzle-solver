@@ -223,8 +223,21 @@ def main():
                                 GRID_SIZE = int(text)
                                 break
                                 text = ''
-                            elif event.key == pygame.K_BACKSPACE:
-                                text = ''                         
+                            elif event.key == pygame.K_BACKSPACE:                                
+                                text = ''
+                                screen.fill((255, 255, 255))
+                                addButton(((WIDTH)/2) - 170 , (HEIGHT - 250)/2, 300, 25, (130,130,130), "Run Performance Analysis", (255,255,255))
+                                label = font.render("Enter Grid Size:", True, (0, 0, 0))
+                                screen.blit(label, ((WIDTH - 200 )/2 , (HEIGHT/2) - 40))
+                                # Render the current text.                    
+                                txt_surface = font.render(text, True, (0, 0, 0))
+                                # Resize the box if the text is too long.
+                                input_box.w = 100
+                                # Blit the text
+                                screen.blit(txt_surface, (input_box.x+5, input_box.y+5))
+                                # Blit the input_box rect.
+                                pygame.draw.rect(screen, (0, 0, 0), input_box, 2)    
+                                pygame.display.update()            
                             else:
                                 # check that the input is a number                                
                                 if event.unicode.isdigit():                                    
