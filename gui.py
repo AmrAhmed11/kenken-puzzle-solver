@@ -292,7 +292,8 @@ def main():
             b11, b12, b13, b14 = addButton((WIDTH / 2) - 250, buttonX - 40, 500, 25, (130, 130, 130), "Solve Using Backtracking Only", (255, 255, 255))
             b21, b22, b23, b24 = addButton((WIDTH / 2) - 250, buttonX, 500, 25, (130, 130, 130), "Solve Using Backtracking With Arc Consistency ", (255, 255, 255))
             b31, b32, b33, b34 = addButton((WIDTH / 2) - 250, buttonX + 40, 500, 25, (130, 130, 130), "Solve Using Backtracking With Forward Checking ", (255, 255, 255))
-            b41, b42, b43, b44 = addButton(WIDTH - 200, buttonX, 150, 25, (130, 130, 130), "New Game ", (255, 255, 255))
+            b41, b42, b43, b44 = addButton(WIDTH - 200, buttonX - 20, 150, 25, (130, 130, 130), "New Game ", (255, 255, 255))
+            b51, b52, b53, b54 = addButton(WIDTH - 200, buttonX + 20 , 150, 25, (130, 130, 130), "Clear ", (255, 255, 255))
         
             pygame.display.update()
 
@@ -318,7 +319,28 @@ def main():
                             break     
                         if pos[0] > b41 and pos[1] > b42 and pos[0] < b43 and pos[1] < b44:
                             GRID_SIZE = -1
-                            break                                          
+                            break   
+                        if pos[0] > b51 and pos[1] > b52 and pos[0] < b53 and pos[1] < b54:
+                            screen.fill((255, 255, 255))
+                            for x in currentBoard.cages:
+                                operation = x[1]
+                                operationNo = x[2]                
+                                cages = []
+                                if operation == '.':
+                                    operation = ''
+                                smallArr[int(x[0][0][0])-1][int(x[0][0][1])-1] = str(abs(operationNo)) + operation
+                                for y in x[0]:
+                                    tmp = tuple(i - 1 for i in y)
+                                    cages.append(tmp) 
+                                addCage(cages)                         
+                            drawGrid(smallArr=smallArr)
+                            b11, b12, b13, b14 = addButton((WIDTH / 2) - 250, buttonX - 40, 500, 25, (130, 130, 130), "Solve Using Backtracking Only", (255, 255, 255))
+                            b21, b22, b23, b24 = addButton((WIDTH / 2) - 250, buttonX, 500, 25, (130, 130, 130), "Solve Using Backtracking With Arc Consistency ", (255, 255, 255))
+                            b31, b32, b33, b34 = addButton((WIDTH / 2) - 250, buttonX + 40, 500, 25, (130, 130, 130), "Solve Using Backtracking With Forward Checking ", (255, 255, 255))
+                            b41, b42, b43, b44 = addButton(WIDTH - 200, buttonX - 20, 150, 25, (130, 130, 130), "New Game ", (255, 255, 255))
+                            b51, b52, b53, b54 = addButton(WIDTH - 200, buttonX + 20 , 150, 25, (130, 130, 130), "Clear ", (255, 255, 255))
+                            pygame.display.update()
+                            break                                         
                     if event.type == pygame.QUIT:
                         pygame.quit()
                         quit()     
