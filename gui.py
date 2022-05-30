@@ -140,7 +140,7 @@ def perfomanceAnalysis(testNo):
         time1 += (end - start)
 
         start = time.time()
-        assignment = solver.backtracking_search(Kenken, inference = solver.mac)                                       
+        assignment = solver.backtracking_search(Kenken, inference = solver.AC3)                                       
         end = time.time()
         time2 += (end - start)
 
@@ -157,13 +157,13 @@ def perfomanceAnalysis(testNo):
     pygame.display.update()    
     text = font.render("Total Backtracking Search: " + '{:04.4f}'.format(time1) + " Seconds", True, (0, 0, 0))
     screen.blit(text, ((WIDTH/2) - 295, (HEIGHT/2) - 200 + 10))
-    text = font.render("Total Backtracking Search with MAC: " + '{:04.4f}'.format(time2) + " Seconds", True, (0, 0, 0))
+    text = font.render("Total Backtracking Search with Arc Consistency: " + '{:04.4f}'.format(time2) + " Seconds", True, (0, 0, 0))
     screen.blit(text, ((WIDTH/2) - 295, (HEIGHT/2) - 200 + 40))
     text = font.render("Total Backtracking Search with Forward Checking: " + '{:04.4f}'.format(time3) + " Seconds", True, (0, 0, 0))
     screen.blit(text, ((WIDTH/2) - 295, (HEIGHT/2) - 200 + 70))
     text = font.render("Average Backtracking Search Per Test: " + '{:04.4f}'.format(time1/testNo) + " Seconds", True, (0, 0, 0))
     screen.blit(text, ((WIDTH/2) - 295, (HEIGHT/2) - 200 + 130))
-    text = font.render("Average Backtracking Search with MAC Per Test: " + '{:04.4f}'.format(time2/testNo) + " Seconds", True, (0, 0, 0))
+    text = font.render("Average Backtracking Search with Arc Consistency Per Test: " + '{:04.4f}'.format(time2/testNo) + " Seconds", True, (0, 0, 0))
     screen.blit(text, ((WIDTH/2) - 295, (HEIGHT/2) - 200 + 160))
     text = font.render("Average Backtracking Search with Forward Checking Per Test: " + '{:04.4f}'.format(time3/testNo) + " Seconds", True, (0, 0, 0))
     screen.blit(text, ((WIDTH/2) - 295, (HEIGHT/2) - 200 + 190))
@@ -307,7 +307,7 @@ def main():
                             drawGrid(smallArr=smallArr, largeArr=solution)                                                            
                             break  
                         if pos[0] > b21 and pos[1] > b22 and pos[0] < b23 and pos[1] < b24:
-                            assignment = solver.backtracking_search(Kenken, inference = solver.mac)                            
+                            assignment = solver.backtracking_search(Kenken, inference = solver.AC3)                            
                             solution = solver.gui_input(assignment, GRID_SIZE)                              
                             drawGrid(smallArr=smallArr, largeArr=solution)                  
                             break  
