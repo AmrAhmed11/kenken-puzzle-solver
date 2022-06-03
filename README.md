@@ -45,7 +45,7 @@ Kenken game generator and solver using three different algorithms backtracing, b
 
 https://user-images.githubusercontent.com/11968453/171939234-db7ce1d3-6ef1-4cf9-96c4-1cdb80ecd55f.mp4
 
-* Enter number of grid size.
+* Enter number of grid size and press enter.
 ![image](https://user-images.githubusercontent.com/70315665/171001977-cb56b3a1-a7be-4906-b012-0c64319e3086.png)
 * click on the Alogrithm button you want the game to be solved by. 
 ![image](https://user-images.githubusercontent.com/70315665/171002143-93ad70f5-fb0b-432f-8286-2460b86a4cda.png)
